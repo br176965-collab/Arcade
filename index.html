@@ -92,7 +92,28 @@ window.addEventListener("error",function(e){
 </div>
 <div id="fade"></div>
 
-<script src="https://unpkg.com/three@0.161.0/build/three.min.js"></script>
+<script>
+/* GitHub Pages / blocked-CDN boot guard: the Start button must never become a dead button. */
+window.__threeLoaded=false;
+window.__startPressed=false;
+window.addEventListener("DOMContentLoaded",()=>{
+  const b=document.getElementById("start");
+  b.addEventListener("click",()=>{
+    window.__startPressed=true;
+    document.getElementById("title").classList.add("hidden");
+    document.getElementById("hud").style.display="block";
+    if(!window.__threeLoaded){
+      setTimeout(()=>{
+        if(!window.__threeLoaded && !window.THREE){
+          document.getElementById("event").textContent="3D ENGINE DID NOT LOAD • CHECK INTERNET / GITHUB PAGES";
+          document.getElementById("hint").textContent="The Start button worked, but the browser could not load the 3D engine.";
+        }
+      },1200);
+    }
+  },{once:true});
+});
+</script>
+<script src="https://unpkg.com/three@0.161.0/build/three.min.js" onload="window.__threeLoaded=true" onerror="window.__threeLoaded=false"></script>
 <script>
 'use strict';
 
@@ -104,6 +125,11 @@ window.addEventListener("error",function(e){
    ============================================================ */
 
 const $=id=>document.getElementById(id);
+if(!window.THREE){
+  $('event').textContent='3D ENGINE FAILED TO LOAD';
+  $('hint').textContent='Refresh the page or allow unpkg.com on GitHub Pages.';
+  throw new Error('Three.js failed to load');
+}
 const scene=new THREE.Scene();
 scene.background=new THREE.Color(0x05070b);
 scene.fog=new THREE.Fog(0x05070b,45,360);
